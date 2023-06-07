@@ -1,4 +1,4 @@
-package com.example.service;
+package com.example.oauth2login.service;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -13,9 +13,11 @@ import java.util.List;
 
 @Service
 public class OAuth2UserService extends DefaultOAuth2UserService {
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
+        //유저 정보 조회
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
         //권한 부여
