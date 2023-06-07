@@ -18,6 +18,9 @@ spring:
       hibernate:
         format_sql: true
 
+  config:
+    import: application-API-Key.yml
+
   security:
     oauth2:
       client:
@@ -36,5 +39,6 @@ spring:
             authorization-grant-type: authorization_code
             client-name: kakao
             scope:
-              - profile
+              - profile_nickname
+              - profile_image
               - account_email
