@@ -1,6 +1,11 @@
 package com.example.oauth2login.config;
 
+import com.example.oauth2login.response.UserResponse;
 import com.example.oauth2login.service.OAuth2UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,12 +13,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
 
 @Configuration
 @EnableMethodSecurity
@@ -21,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 public class SecurityConfig {
 
     private final OAuth2UserService oAuth2UserService;
+    private final ObjectMapper objectMapper;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,20 +44,20 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationSuccessHandler successHandler() {
-        return ((request, response, authentication) -> {
-            DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
+        return new AuthenticationSuccessHandler() {
+            @Override
+            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
 
-            String id = defaultOAuth2User.getAttributes().get("id").toString();
-            String body = """
-                    {"id":"%s"}
-                    """.formatted(id);
+                UserResponse userResponse = UserResponse.builder()
+                        .id((Long) defaultOAuth2User.getAttributes().get("id"))
+                        .build();
 
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+                response.setContentType("text/html; charset=utf-8");
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                objectMapper.writeValue(response.getWriter(), userResponse);
 
-            PrintWriter writer = response.getWriter();
-            writer.println(body);
-            writer.flush();
-        });
+            }
+        };
     }
 }
