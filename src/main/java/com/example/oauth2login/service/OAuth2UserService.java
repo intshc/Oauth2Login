@@ -21,7 +21,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
         //권한 부여
-        List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_ADMIN");
+        List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
 
         // nameAttributeKey
         String userNameAttributeName = userRequest.getClientRegistration()
